@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Babylon.js Sample Code</title>
-    <!-- Babylon.js and dependencies -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js"></script>
     <script src="https://preview.babylonjs.com/ammo.js"></script>
     <script src="https://preview.babylonjs.com/recast.js"></script>
@@ -16,7 +16,6 @@
             margin: 0;
             padding: 0;
         }
-
         #renderCanvas {
             width: 100%;
             height: 100%;
@@ -31,16 +30,20 @@
 
         const createDefaultEngine = () => new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true });
 
-        const createScene = () => {
-            const scene = new BABYLON.Scene(engine);
-
+        const initializeCamera = (scene) => {
             const camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 10, -20), scene);
             camera.setTarget(BABYLON.Vector3.Zero());
             camera.attachControl(canvas, true);
+            return camera;
+        };
 
+        const initializeLighting = (scene) => {
             const light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
             light.intensity = 0.7;
+            return light;
+        };
 
+        const createObjects = (scene) => {
             const sphere = BABYLON.Mesh.CreateSphere("sphere1", 8, 2, scene);
             sphere.position.y = 2;
             sphere.material = new BABYLON.StandardMaterial("s-mat", scene);
@@ -56,7 +59,13 @@
                 main.object.material.diffuseColor = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
                 console.log(main.object.name);
             });
+        };
 
+        const createScene = () => {
+            const scene = new BABYLON.Scene(engine);
+            initializeCamera(scene);
+            initializeLighting(scene);
+            createObjects(scene);
             return scene;
         };
 
@@ -64,16 +73,14 @@
         try {
             engine = createDefaultEngine();
         } catch (e) {
-            console.log("The available createEngine function failed. Creating the default engine instead.");
+            console.error("Engine creation failed. Creating a default engine.");
             engine = createDefaultEngine();
         }
         if (!engine) throw 'Engine should not be null.';
 
         const scene = createScene();
         engine.runRenderLoop(() => {
-            if (scene) {
-                scene.render();
-            }
+            scene.render();
         });
 
         window.addEventListener("resize", () => {
